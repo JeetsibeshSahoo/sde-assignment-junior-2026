@@ -1,20 +1,26 @@
 # AI Usage Disclosure
 
-AI tools are allowed. We want to know **how** you used them, because using them well is a
-skill. Honest answers are never held against you. Discovering undisclosed use is.
-
 ## Tools used
-_e.g. Claude, Cursor, Copilot, ChatGPT, or "none"_
+Antigravity (Gemini 3.8 Flash)
 
 ## What I used them for
-_e.g. "scaffolded the FastAPI receiver", "explained Temporal activity retries", "wrote the first
-draft of the phone-normalisation tests"_
+- Discussing problem choice and comparing Problem A vs Problem B under the time constraints.
+- Scaffolding the initial SQLite/PostgreSQL schema and phone normalization regular expressions.
+- Drafting the unit tests in `tests/test_pipeline.py`.
+- Formulating the documentation in `SUBMISSION.md`.
 
 ## What I wrote or decided myself
-_The parts that are your own thinking: design, data model, edge-case handling..._
+- Selected Problem A based on determinism, reliability, and interview defensibility.
+- Architecture decisions: using SQLAlchemy for dual PostgreSQL/SQLite support so the project runs cleanly without external dependencies.
+- PII strategy: using salted SHA-256 HMAC for exact relational matching without plaintext phone storage, coupled with `+91******XXXX` masking for reports.
+- Idempotency design: using an `ingested_files` table to guarantee that re-running drops produces identical output and does not double-count metrics.
+- Validated all 5 generated report files against the contract specifications.
 
 ## Where the AI was wrong or unhelpful
-_At least one example of output you rejected or had to fix, and how you noticed._
+- Initial test execution failed with `ModuleNotFoundError` because `pytest` did not have the root folder in `sys.path`. Resolved by creating a standard `pytest.ini` with `pythonpath = .`.
 
 ## How I verified AI-generated code
-_Tests, manual runs, reading it line by line..._
+- Tested each module individually: `leads.py`, `events.py`, and `reports.py`.
+- Verified that re-running `ingest data/drop_1` skipped already ingested files.
+- Verified that all report metrics and numbers matched the mathematical sums (e.g. `yet_to_reach_out + completed + in_progress_telephony_failed + in_progress_dialed == total_leads`).
+- Ran the full `pytest` suite and confirmed 100% pass rate.
